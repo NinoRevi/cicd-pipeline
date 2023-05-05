@@ -1,0 +1,35 @@
+pipeline {
+  agent any
+  stages {
+    stage('Git Checkout') {
+      steps {
+        git branch: 'main', credentialsId: 'de4a21dd-b2d9-409c-adb6-809887841a93', url: 'https://github.com/NinoRevi/cicd-pipeline'
+      }
+    }
+    stage('Application Build'){
+      steps {
+        sh 'chmod +x /var/lib/jenkins/workspace/cicd-pipeline-project/scripts/build.sh'
+        sh '/var/lib/jenkins/workspace/cicd-pipeline-project/scripts/build.sh'
+      }
+     
+    }
+    stage('Test') {
+      steps {
+        sh './scripts/test.sh'
+      }
+    }
+    stage('Docker Image Build'){
+        steps {       
+        sh 'docker build -t ninorevi/ninorevi:latest .'
+        }
+    }
+   
+
+    stage('Docker Image Push') {
+      steps {
+          sh 'docker login --username=ninorevi --password=dckr_pat_myNB7x1tnvysGOUbKiOYT4oLkiE'
+          sh 'docker push ninorevi/ninorevi:latest'
+        }
+      }
+    }
+  }
